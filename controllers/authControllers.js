@@ -10,7 +10,9 @@ const register = async (req, res) => {
   if (!name || !email || !password) {
     throw new CustomErrors.BadRequestError("Please provide all fields");
   }
-  const user = await User.create({ name, email, password });
+  const isFirstAccount = (await User.countDocument({})) === 0;
+  const role = isFirstAccount ? "admin" : "user";
+  const user = await User.create({ name, email, password, role });
   const tokenUser = createTokenUser(user);
   attachToCookie(res, tokenUser);
   res
@@ -26,11 +28,14 @@ const login = async (req, res) => {
   }
   const user = await User.findOne({ email });
   if (!user) {
-    throw new CustomErrors.BadRequestError("Invalid email or password");
+    throw new CustomErrors.NotFoundError("Invalid email or password");
   }
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
-    throw new CustomErrors.BadRequestError("Invalid email or password");
+    throw new CustomErrors.UnauthenticateError("Invalid email or password");
+  }
+  if (!user.isVerified) {
+    throw new CustomErrors.UnauthenticateError("Please verify your email");
   }
   const tokenUser = createTokenUser(user);
   attachToCookie(res, tokenUser);

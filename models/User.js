@@ -6,7 +6,6 @@ const UserSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
     },
     email: {
       type: String,
@@ -22,8 +21,38 @@ const UserSchema = new mongoose.Schema(
       enum: ["admin", "user"],
       default: "user",
     },
+    bio: {
+      type: String,
+    },
+    image: {
+      type: String,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+    },
+    verificationTokenExpires: {
+      type: Date,
+    },
+    passwordResetToken: {
+      type: String,
+    },
+    resetTokenExpires: {
+      type: Date,
+    },
   },
-  { timestamps: true }
+  {
+    toJSON: {
+      virtuals: true,
+    },
+    toObject: {
+      virtuals: true,
+    },
+    timestamps: true,
+  }
 );
 
 UserSchema.pre("save", async function (next) {

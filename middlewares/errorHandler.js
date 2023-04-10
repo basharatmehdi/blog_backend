@@ -8,9 +8,9 @@ const errorHandlerMiddleware = (err, req, res, next) => {
   if (err.code && err.code === 11000) {
     customError = {
       msg:
-        (err.keyPattern.email === 1 && "Email Already Exists") ||
+        (err.keyPattern.email === 1 && "User Already Exists") ||
         "Duplicate field value entered",
-      statusCode: StatusCodes.BAD_REQUEST,
+      statusCode: StatusCodes.CONFLICT,
     };
   }
   return res.status(customError.statusCode).json({ msg: customError.msg });
