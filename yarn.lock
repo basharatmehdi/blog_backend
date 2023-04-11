@@ -223,6 +223,7 @@ __metadata:
     http-status-codes: ^2.2.0
     jsonwebtoken: ^9.0.0
     mongoose: ^7.0.3
+    nodemailer: ^6.9.1
     nodemon: ^2.0.22
     sib-api-v3-sdk: ^8.5.0
   languageName: unknown
@@ -1457,6 +1458,13 @@ __metadata:
   bin:
     node-gyp: bin/node-gyp.js
   checksum: b860e9976fa645ca0789c69e25387401b4396b93c8375489b5151a6c55cf2640a3b6183c212b38625ef7c508994930b72198338e3d09b9d7ade5acc4aaf51ea7
+  languageName: node
+  linkType: hard
+
+"nodemailer@npm:^6.9.1":
+  version: 6.9.1
+  resolution: "nodemailer@npm:6.9.1"
+  checksum: b1b9670afc170b4454665abae3fc9acd7e781adb9f579d1c2cd991bf75c647ebe345593f8a057e48d7bf9e4c9a9218869f87db8fb7171c614f557000ab654572
   languageName: node
   linkType: hard
 

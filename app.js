@@ -5,7 +5,7 @@ dotenv.config();
 require("express-async-errors");
 const cookieParser = require("cookie-parser");
 
-const userRouter = require("./routes/authRoutes");
+const authRouter = require("./routes/authRoutes");
 
 const dbConnection = require("./config/dbConnect");
 const notFound = require("./middlewares/notFound");
@@ -19,7 +19,7 @@ app.get("/", (req, res) => {
 });
 
 //Routes
-app.use("/api/user", userRouter);
+app.use("/api/auth", authRouter);
 
 //Middlewares
 app.use(notFound);
