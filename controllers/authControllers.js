@@ -67,8 +67,8 @@ const login = async (req, res) => {
 
 //Verify Email
 const verifyEmail = async (req, res) => {
-  // const { verificationToken } = req.params;
-  const { verificationToken } = req.body;
+  const { verificationToken } = req.params;
+  // const { verificationToken } = req.body;
   if (!verificationToken) {
     throw new CustomErrors.BadRequestError("Verification Failed.");
   }
@@ -123,6 +123,10 @@ const resendVerifyEmail = async (req, res) => {
 
 //Logout
 const logout = async (req, res) => {
+  const { token } = req.signedCookies;
+  if (!token) {
+    throw new CustomErrors.UnauthorizeError("You are not logged in.");
+  }
   res.clearCookie("token");
   res.status(StatusCodes.OK).json({
     msg: "User logged out successfully",

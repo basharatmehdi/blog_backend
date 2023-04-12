@@ -6,6 +6,7 @@ require("express-async-errors");
 const cookieParser = require("cookie-parser");
 
 const authRouter = require("./routes/authRoutes");
+const userRouter = require("./routes/userRoutes");
 
 const dbConnection = require("./config/dbConnect");
 const notFound = require("./middlewares/notFound");
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 
 //Routes
 app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
 
 //Middlewares
 app.use(notFound);
