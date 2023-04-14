@@ -2,7 +2,7 @@ const sendEmail = require("./sendEmail");
 const sendResetPasswordEmail = async ({
   name,
   email,
-  verificationToken,
+  resetPasswordToken,
   origin,
 }) => {
   const receivers = [
@@ -17,7 +17,7 @@ const sendResetPasswordEmail = async ({
     html: `
     Hello <b>${name}</b>
     <h2>Coding Byte </h2>
-    <a href= "${origin}/auth/verify-email?token=${verificationToken}}">Click Here</a> to verify your email.
+    <a href= "${origin}/auth/verify-email?token=${resetPasswordToken}}">Click Here</a> to verify your email.
     `,
   });
 };

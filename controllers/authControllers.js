@@ -6,6 +6,7 @@ const createTokenUser = require("../utils/tokenUser");
 const { attachToCookie } = require("../utils/jwt");
 // const sendEmail = require("../utils/sendEmail");
 const sendVerificationEmail = require("../utils/sendVerificationEmail");
+const sendResetPasswordEmail = require("../utils/sendResetPasswordEmail");
 
 //Register
 const register = async (req, res) => {
@@ -83,8 +84,8 @@ const verifyEmail = async (req, res) => {
     throw new CustomErrors.BadRequestError("Verification token expired");
   }
   user.isVerified = true;
-  user.verificationToken = null;
-  user.verificationTokenExpires = null;
+  user.verificationToken = undefined;
+  user.verificationTokenExpires = undefined;
   await user.save();
   res.status(StatusCodes.OK).json({
     msg: "Email verified successfully",
@@ -121,6 +122,56 @@ const resendVerifyEmail = async (req, res) => {
   });
 };
 
+//Reset Password Email
+const resetPasswordLink = async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new CustomErrors.NotFoundError("Invalid User");
+  }
+  const passwordResetToken = crypto.randomBytes(40).toString("hex");
+  const resetTokenExpires = Date.now() + 1000 * 60 * 10;
+  user.passwordResetToken = passwordResetToken;
+  user.resetTokenExpires = resetTokenExpires;
+  await user.save();
+  const origin = "http://localhost:4000";
+  await sendResetPasswordEmail({
+    name: user.name,
+    email: user.email,
+    resetPasswordToken: passwordResetToken,
+    origin: origin,
+  });
+  res.status(StatusCodes.OK).json({
+    msg: "Reset password link sent to your email",
+  });
+};
+
+//Reset Password
+const resetPassword = async (req, res) => {
+  const { token } = req.query;
+  const { password, confirmPassword } = req.body;
+  if (!password || !confirmPassword) {
+    throw new CustomErrors.BadRequestError("Please provide all fields");
+  }
+  if (password !== confirmPassword) {
+    throw new CustomErrors.BadRequestError("Passwords do not match");
+  }
+  const user = await User.findOne({
+    passwordResetToken: token,
+    resetTokenExpires: { $gt: Date.now() },
+  });
+  if (!user) {
+    throw new CustomErrors.UnauthenticateError("Invalid token");
+  }
+  user.password = password;
+  user.passwordResetToken = undefined;
+  user.resetTokenExpires = undefined;
+  await user.save();
+  res.status(StatusCodes.OK).json({
+    msg: "Password reset successfully",
+  });
+};
+
 //Logout
 const logout = async (req, res) => {
   const { token } = req.signedCookies;
@@ -139,4 +190,6 @@ module.exports = {
   verifyEmail,
   resendVerifyEmail,
   logout,
+  resetPasswordLink,
+  resetPassword,
 };

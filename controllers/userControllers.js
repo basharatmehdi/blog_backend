@@ -94,13 +94,13 @@ const updateUserPassword = async (req, res) => {
 
 //Delete user
 const deleteUser = async (req, res) => {
-  const { userId } = req.user;
+  // const { userId } = req.user;
   const { id } = req.params;
   const user = await User.findById(id);
   if (!user) {
     throw new CustomErrors.NotFoundError("User not found");
   }
-  checkPermissions({ reqUser: req.user, sourceUser: user });
+  checkPermissions({ reqUser: req.user, sourceUserId: user._id });
   await user.deleteOne();
   res.status(StatusCodes.OK).json({
     msg: "User deleted successfully",
