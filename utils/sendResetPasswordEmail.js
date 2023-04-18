@@ -17,7 +17,7 @@ const sendResetPasswordEmail = async ({
     html: `
     Hello <b>${name}</b>
     <h2>Coding Byte </h2>
-    <a href= "${origin}/auth/verify-email?token=${resetPasswordToken}}">Click Here</a> to verify your email.
+    <a href= "${origin}/reset-password?token=${resetPasswordToken}}">Click Here</a> to verify your email.
     `,
   });
 };

@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 
 const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
+const postRouter = require("./routes/postRoutes");
 
 const dbConnection = require("./config/dbConnect");
 const notFound = require("./middlewares/notFound");
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
 //Routes
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
+app.use("/api/posts", postRouter);
 
 //Middlewares
 app.use(notFound);

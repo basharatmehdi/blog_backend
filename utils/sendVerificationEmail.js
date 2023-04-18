@@ -17,7 +17,7 @@ const sendVerificationEmail = async ({
     html: `
     Hello <b>${name}</b>
     <h2>Coding Byte </h2>
-    <a href= "${origin}/auth/verify-email?token=${verificationToken}}">Click Here</a> to verify your email.
+    <a href= "${origin}/verify-email?token=${verificationToken}}">Click Here</a> to verify your email.
     `,
   });
 };
