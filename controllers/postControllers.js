@@ -30,9 +30,46 @@ const createPost = async (req, res) => {
   });
 };
 
-//Get All Posts
+//Publish Post
+const publishPost = async (req, res) => {
+  const { id: postId } = req.params;
+  const post = await Post.findById(postId);
+  if (!post) throw new CustomErrors.NotFoundError("Post not found");
+  if (post.published) {
+    throw new CustomErrors.BadRequestError("Post already published");
+  }
+  checkPermissions({ reqUser: req.user, sourceUserId: post.author });
+  post.published = true;
+  await post.save();
+  res.status(StatusCodes.OK).json({
+    post,
+    msg: "Post published successfully",
+  });
+};
+
+//Get All Posts (Both)
 const getAllPosts = async (req, res) => {
   const posts = await Post.find({});
+  if (!posts) throw new CustomErrors.NotFoundError("No posts found");
+  res.status(StatusCodes.OK).json({
+    totalPosts: posts.length,
+    posts,
+  });
+};
+
+//Get All Posts (Published)
+const getAllPublishedPosts = async (req, res) => {
+  const posts = await Post.find({ published: true });
+  if (!posts) throw new CustomErrors.NotFoundError("No posts found");
+  res.status(StatusCodes.OK).json({
+    totalPosts: posts.length,
+    posts,
+  });
+};
+
+//Get All Posts (Unpublished)
+const getAllUnpublishedPosts = async (req, res) => {
+  const posts = await Post.find({ published: false });
   if (!posts) throw new CustomErrors.NotFoundError("No posts found");
   res.status(StatusCodes.OK).json({
     totalPosts: posts.length,
@@ -96,7 +133,10 @@ const deletePost = async (req, res) => {
 
 module.exports = {
   createPost,
+  publishPost,
   getAllPosts,
+  getAllPublishedPosts,
+  getAllUnpublishedPosts,
   getSinglePost,
   updatePost,
   deletePost,

@@ -7,6 +7,9 @@ const {
   getSinglePost,
   updatePost,
   deletePost,
+  getAllPublishedPosts,
+  getAllUnpublishedPosts,
+  publishPost,
 } = require("../controllers/postControllers");
 const {
   authenticateUser,
@@ -19,7 +22,10 @@ router.post(
   authorizeUser("admin", "author"),
   createPost
 );
+router.patch("/publish-post/:id", authenticateUser, publishPost);
 router.get("/", getAllPosts);
+router.get("/published", getAllPublishedPosts);
+router.get("/unpublished", getAllUnpublishedPosts);
 router.patch("/update-post/:id", authenticateUser, updatePost);
 router.delete("/delete-post/:id", authenticateUser, deletePost);
 router.get("/:id", getSinglePost);
