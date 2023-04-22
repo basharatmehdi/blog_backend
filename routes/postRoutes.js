@@ -23,9 +23,19 @@ router.post(
   createPost
 );
 router.patch("/publish-post/:id", authenticateUser, publishPost);
-router.get("/", getAllPosts);
+router.get(
+  "/",
+  authenticateUser,
+  authorizeUser("admin", "author"),
+  getAllPosts
+);
 router.get("/published", getAllPublishedPosts);
-router.get("/unpublished", getAllUnpublishedPosts);
+router.get(
+  "/unpublished",
+  authenticateUser,
+  authorizeUser("admin", "author"),
+  getAllUnpublishedPosts
+);
 router.patch("/update-post/:id", authenticateUser, updatePost);
 router.delete("/delete-post/:id", authenticateUser, deletePost);
 router.get("/:id", getSinglePost);

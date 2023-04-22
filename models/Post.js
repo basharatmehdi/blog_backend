@@ -25,10 +25,12 @@ const PostSchema = new mongoose.Schema(
       required: true,
     },
     views: Number,
-    likes: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     published: {
       type: Boolean,
       default: false,

@@ -2,11 +2,17 @@ const Post = require("../models/Post");
 const CustomErrors = require("../errors");
 const StatusCodes = require("http-status-codes");
 const checkPermissions = require("../utils/checkPermissions");
+const uploadToCloudinary = require("../utils/cloudinaryConfig");
 
 // Create Post
 const createPost = async (req, res) => {
   const { title, description, category } = req.body;
-  // const image = req.file;
+  const { image } = req.files;
+  if (!image) {
+    throw new CustomErrors.BadRequestError("Image is required");
+  }
+  const localPath = image[0].path;
+  const uploadedImage = await uploadToCloudinary(localPath);
   if (!title) {
     throw new CustomErrors.BadRequestError("Title is required");
   }
@@ -20,7 +26,7 @@ const createPost = async (req, res) => {
   const post = await Post.create({
     title,
     description,
-    //image,
+    image: uploadedImage.secure_url,
     category,
     author: userId,
   });
@@ -34,7 +40,9 @@ const createPost = async (req, res) => {
 const publishPost = async (req, res) => {
   const { id: postId } = req.params;
   const post = await Post.findById(postId);
-  if (!post) throw new CustomErrors.NotFoundError("Post not found");
+  if (!post) {
+    throw new CustomErrors.NotFoundError("Post not found");
+  }
   if (post.published) {
     throw new CustomErrors.BadRequestError("Post already published");
   }
@@ -49,8 +57,15 @@ const publishPost = async (req, res) => {
 
 //Get All Posts (Both)
 const getAllPosts = async (req, res) => {
-  const posts = await Post.find({});
-  if (!posts) throw new CustomErrors.NotFoundError("No posts found");
+  const posts = await Post.find({})
+    .populate({
+      path: "author",
+      select: "-password",
+    })
+    .sort({ createdAt: -1 });
+  if (!posts) {
+    throw new CustomErrors.NotFoundError("No posts found");
+  }
   res.status(StatusCodes.OK).json({
     totalPosts: posts.length,
     posts,
@@ -59,8 +74,15 @@ const getAllPosts = async (req, res) => {
 
 //Get All Posts (Published)
 const getAllPublishedPosts = async (req, res) => {
-  const posts = await Post.find({ published: true });
-  if (!posts) throw new CustomErrors.NotFoundError("No posts found");
+  const posts = await Post.find({ published: true })
+    .populate({
+      path: "author",
+      select: "-password",
+    })
+    .sort({ createdAt: -1 });
+  if (!posts) {
+    throw new CustomErrors.NotFoundError("No posts found");
+  }
   res.status(StatusCodes.OK).json({
     totalPosts: posts.length,
     posts,
@@ -69,8 +91,15 @@ const getAllPublishedPosts = async (req, res) => {
 
 //Get All Posts (Unpublished)
 const getAllUnpublishedPosts = async (req, res) => {
-  const posts = await Post.find({ published: false });
-  if (!posts) throw new CustomErrors.NotFoundError("No posts found");
+  const posts = await Post.find({ published: false })
+    .populate({
+      path: "author",
+      select: "-password",
+    })
+    .sort({ createdAt: -1 });
+  if (!posts) {
+    throw new CustomErrors.NotFoundError("No posts found");
+  }
   res.status(StatusCodes.OK).json({
     totalPosts: posts.length,
     posts,
@@ -87,8 +116,13 @@ const getSinglePost = async (req, res) => {
     },
     { new: true }
   );
-  const post = await Post.findById(postId);
-  if (!post) throw new CustomErrors.NotFoundError("Post not found");
+  const post = await Post.findById(postId).populate({
+    path: "author",
+    select: "-password",
+  });
+  if (!post) {
+    throw new CustomErrors.NotFoundError("Post not found");
+  }
   res.status(StatusCodes.OK).json({
     post,
   });
@@ -104,14 +138,21 @@ const updatePost = async (req, res) => {
       "Title, description and category are required"
     );
   }
-  // const image = req.file
+  const image = req.files;
+  if (!image) {
+    throw new CustomErrors.BadRequestError("Image is required");
+  }
+  const localPath = image[0].path;
+  const uploadedImage = await uploadToCloudinary(localPath);
   const post = await Post.findById(postId);
-  if (!post) throw new CustomErrors.NotFoundError("Post not found");
+  if (!post) {
+    throw new CustomErrors.NotFoundError("Post not found");
+  }
   checkPermissions({ reqUser: req.user, sourceUserId: post.author });
   post.title = title;
   post.description = description;
   post.category = category;
-  // post.image= image
+  post.image = uploadedImage.secure_url;
   await post.save();
   res.status(StatusCodes.OK).json({
     post,
