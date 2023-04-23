@@ -7,10 +7,12 @@ cloudinary.config({
 });
 
 //Upload to Cloudinary
-const uploadToCloudinary = async (file) => {
+const uploadToCloudinary = async ({ file, folder }) => {
   try {
     return await cloudinary.uploader.upload(file, {
       resource_type: "auto",
+      use_filename: true,
+      folder,
     });
   } catch (error) {
     return error;

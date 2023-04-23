@@ -1,3 +1,4 @@
+const fs = require("fs");
 const Post = require("../models/Post");
 const CustomErrors = require("../errors");
 const StatusCodes = require("http-status-codes");
@@ -12,7 +13,10 @@ const createPost = async (req, res) => {
     throw new CustomErrors.BadRequestError("Image is required");
   }
   const localPath = image[0].path;
-  const uploadedImage = await uploadToCloudinary(localPath);
+  const uploadedImage = await uploadToCloudinary({
+    file: localPath,
+    folder: "blog/posts",
+  });
   if (!title) {
     throw new CustomErrors.BadRequestError("Title is required");
   }
@@ -30,6 +34,7 @@ const createPost = async (req, res) => {
     category,
     author: userId,
   });
+  fs.unlinkSync(localPath);
   res.status(StatusCodes.CREATED).json({
     post,
     msg: "Post created successfully",
@@ -143,7 +148,10 @@ const updatePost = async (req, res) => {
     throw new CustomErrors.BadRequestError("Image is required");
   }
   const localPath = image[0].path;
-  const uploadedImage = await uploadToCloudinary(localPath);
+  const uploadedImage = await uploadToCloudinary({
+    file: localPath,
+    folder: "blog/posts",
+  });
   const post = await Post.findById(postId);
   if (!post) {
     throw new CustomErrors.NotFoundError("Post not found");
@@ -154,6 +162,7 @@ const updatePost = async (req, res) => {
   post.category = category;
   post.image = uploadedImage.secure_url;
   await post.save();
+  fs.unlinkSync(localPath);
   res.status(StatusCodes.OK).json({
     post,
     msg: "Post updated successfully",

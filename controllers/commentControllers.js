@@ -2,14 +2,13 @@ const Comment = require("../models/Comment");
 const CustomErrors = require("../errors");
 const StatusCodes = require("http-status-codes");
 const checkPermissions = require("../utils/checkPermissions");
-const { compare } = require("bcrypt");
 
 // Create Comment
 const createComment = async (req, res) => {
   const { commentText, postId } = req.body;
   if (!commentText || !postId) {
     throw new CustomErrors.BadRequestError(
-      "Please provide commentText and postId"
+      "All fields are required to create a comment"
     );
   }
   const user = req.user;

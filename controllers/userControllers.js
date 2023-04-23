@@ -1,9 +1,11 @@
 const User = require("../models/User");
+const fs = require("fs");
 const { StatusCodes } = require("http-status-codes");
 const CustomErrors = require("../errors");
 const { attachToCookie } = require("../utils/jwt");
 const createTokenUser = require("../utils/tokenUser");
 const checkPermissions = require("../utils/checkPermissions");
+const uploadToCloudinary = require("../utils/cloudinaryConfig");
 
 // Get all users
 const getAllUsers = async (req, res) => {
@@ -46,26 +48,27 @@ const showCurrentUser = async (req, res) => {
 //Update user
 const updateUser = async (req, res) => {
   const { userId } = req.user;
-  const { name, bio, image } = req.body;
+  const { name, bio } = req.body;
+  const { image } = req.files;
   if (!name) {
     throw new CustomErrors.BadRequestError("Name is required");
   }
-  if (!bio) {
-    throw new CustomErrors.BadRequestError("Bio is required");
-  }
-  // if (!image) {
-  //   throw new CustomErrors.BadRequestError("Image is required");
-  // }
+  const localPath = image[0].path;
+  const uploadedImage = await uploadToCloudinary({
+    file: localPath,
+    folder: "blog/users",
+  });
   const user = await User.findOneAndUpdate(
     { _id: userId },
-    { name, bio, image },
+    { name, bio, image: uploadedImage.secure_url },
     { new: true }
-  );
+  ).select("-password");
   if (!user) {
     throw new CustomErrors.NotFoundError("User not found");
   }
   const tokenUser = createTokenUser(user);
-  attachToCookie({ res, user: tokenUser });
+  attachToCookie(res, tokenUser);
+  fs.unlinkSync(localPath);
   res.status(StatusCodes.OK).json({
     user,
   });
