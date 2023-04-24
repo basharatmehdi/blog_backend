@@ -10,6 +10,7 @@ const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
 const postRouter = require("./routes/postRoutes");
 const commentRouter = require("./routes/commentRoutes");
+const postCategoryRouter = require("./routes/postCategoryRoutes");
 
 const dbConnection = require("./config/dbConnect");
 const notFound = require("./middlewares/notFound");
@@ -38,6 +39,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/comments", commentRouter);
+app.use("/api/category", postCategoryRouter);
 
 //Middlewares
 app.use(notFound);
