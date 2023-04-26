@@ -84,6 +84,7 @@ const getAllPublishedPosts = async (req, res) => {
       path: "author",
       select: "-password",
     })
+    .populate("comments")
     .sort({ createdAt: -1 });
   if (!posts) {
     throw new CustomErrors.NotFoundError("No posts found");
@@ -121,10 +122,12 @@ const getSinglePost = async (req, res) => {
     },
     { new: true }
   );
-  const post = await Post.findById(postId).populate({
-    path: "author",
-    select: "-password",
-  });
+  const post = await Post.findById(postId)
+    .populate({
+      path: "author",
+      select: "-password",
+    })
+    .populate("comments");
   if (!post) {
     throw new CustomErrors.NotFoundError("Post not found");
   }
