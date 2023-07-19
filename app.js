@@ -5,6 +5,7 @@ dotenv.config();
 require("express-async-errors");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
+const cors = require("cors");
 
 const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
@@ -29,6 +30,11 @@ app.use(
   ])
 );
 app.use(cookieParser(process.env.JWT_SECRET));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+  })
+);
 
 app.get("/", (req, res) => {
   res.send("this is get route");
